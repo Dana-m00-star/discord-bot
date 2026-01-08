@@ -93,16 +93,10 @@ client.on('messageCreate', async (message) => {
     } else {
       await message.channel.send('لا تفلها عاد ');
     }
-  }
+  
 
-  // ---- الرد على الضحك ----
-  const laughRegex = /ه{2,}/; // أي كلمة فيها أكثر من حرف "ه" متتالي
-  if (laughRegex.test(msg)) {
-    const lastLaugh = lastReplyMap.get(userId + '_laugh');
-    if (!lastLaugh || now - lastLaugh >= REPLY_COOLDOWN) {
-      await message.channel.send('دوم يا مطنوخ 🫡');
-      lastReplyMap.set(userId + '_laugh', now);
-    }
+  
+    
   }
 
   // ---- تايم أوت ----
