@@ -18,7 +18,7 @@ const usersReplies = {
   '1406416452310925496': 'لبيه يادحومي',
   '765750374166167562': 'لبيه يا حمودي',
   '1406421385428992135': 'لبيه يا نجد',
-  '1406429112502976556': 'لبيه يا لولو',
+  '1406429112502976556': ' لبيه يا لولو ارحبي امريني بس',
   '1406420180279623832': 'أرحبي يا لانا',
   '1417274940536782989': 'هلا بوفه هلا',
   '1375217824187814161': 'ارحب يالريس 🫡'
@@ -59,19 +59,7 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   const now = Date.now();
 
-  // ---- Anti-Spam ----
-  if (!spamMap.has(userId)) {
-    spamMap.set(userId, { count: 1, firstMessage: now });
-  } else {
-    const data = spamMap.get(userId);
-    if (now - data.firstMessage < SPAM_TIME) {
-      data.count++;
-      if (data.count === SPAM_LIMIT) {
-        await message.channel.send('هدي قاعد تسولف بسرعه محد يطردك يالذيب ');
-      }
-    } else {
-      spamMap.set(userId, { count: 1, firstMessage: now });
-    }
+ 
   }
 
   // ---- إرسال الفاصل ----
