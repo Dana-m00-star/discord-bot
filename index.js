@@ -11,7 +11,7 @@ const client = new Client({
 
 // ===== الإعدادات =====
 const separatorChannelID = '1451696498214703246';
-const separatorImageFile = './separator.png';
+const separatorImageFile = './boty.png';
 
 // الردود التلقائية لكل شخص
 const usersReplies = {
