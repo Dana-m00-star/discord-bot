@@ -85,15 +85,20 @@ client.on('messageCreate', async (message) => {
     }
   }
 
+  // ---- الرد على "بوت قول لي قصيده" لمستخدم محدد ----
+  if (userId === '1406421385428992135' && msg.includes('بوت قول لي قصيده')) {
+    await message.channel.send(
+      'يانجد الاحباب لك حدر القمر صوره\nطفله هلال و بنت خمسه عشر بدرا'
+    );
+  }
+
   // ---- تايم أوت ----
   if (msg === 'اوت' && message.reference && ownerIds.includes(userId)) {
     try {
       const repliedMessage = await message.channel.messages.fetch(
         message.reference.messageId
       );
-      const member = await message.guild.members.fetch(
-        repliedMessage.author.id
-      );
+      const member = await message.guild.members.fetch(repliedMessage.author.id);
 
       await member.timeout(TIMEOUT_DURATION, 'تايم أوت من Owner');
       await message.channel.send('القم تايم اوت');
@@ -113,7 +118,7 @@ client.on('messageCreate', async (message) => {
   const lastTime = lastMessageMap.get(userId);
   if (lastTime && now - lastTime >= ABSENCE_TIME) {
     if (userId === welcomeOwnerId) {
-      await message.channel.send('أرحبي يا أطلق أونر 🫡');
+      await message.channel.send('أرحب يا أطلق أونر 🫡');
     } else {
       await message.channel.send('أرحب يا مطنوخ، وين كنت لك فقده');
     }
