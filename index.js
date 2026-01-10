@@ -9,11 +9,13 @@ const client = new Client({
   ]
 });
 
-// ===== الإعدادات =====
+/* ======================
+   الإعدادات
+   ====================== */
+
 const separatorChannelID = '1451696498214703246';
 const separatorImageFile = './boty.PNG';
 
-// الردود التلقائية لكل شخص
 const usersReplies = {
   '1406416452310925496': 'لبيه يادحومي',
   '765750374166167562': 'لبيه يا حمودي',
@@ -24,46 +26,69 @@ const usersReplies = {
   '1375217824187814161': 'ارحب يالريس 🫡'
 };
 
-// الأشخاص اللي يقدرون يعطون تايم أوت
 const ownerIds = ['1278197844259639322', '1406429112502976556'];
 
-const TIMEOUT_DURATION = 60 * 1000; // دقيقة
+const TIMEOUT_DURATION = 60 * 1000;
 const restartCommand = 'ريستارت';
 
-// ===== كول داون الردود =====
+/* ======================
+   كول داون الردود
+   ====================== */
+
 const lastReplyMap = new Map();
 const REPLY_COOLDOWN = 60 * 1000;
 
-// ===== الترحيب بعد الغياب =====
+/* ======================
+   الترحيب بعد الغياب
+   ====================== */
+
 const lastMessageMap = new Map();
 const welcomeOwnerId = '1406429112502976556';
 const ABSENCE_TIME = 60 * 60 * 1000;
 
-// ===== جاهزية البوت =====
+/* ======================
+   جاهزية البوت
+   ====================== */
+
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 });
 
-// ===== التعامل مع الرسائل =====
+/* ======================
+   التعامل مع الرسائل
+   ====================== */
+
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  const msg = message.content.toLowerCase();
+  const content = message.content.trim();
   const userId = message.author.id;
   const now = Date.now();
 
-  // ---- أوامر خاصة ----
-  if (msg === 'بوت تحبني') {
-    await message.channel.send('اموت فيك');
+  /* -------- أوامر خاصة -------- */
+
+  if (content === 'بوت تحبني') {
+    await message.reply('اموت فيك');
     return;
   }
 
-  if (msg === 'بوت احضني') {
-    await message.channel.send('ما تبي كنتاكي بعد');
+  if (content === 'بوت احضني') {
+    await message.reply('ما تبي كنتاكي بعد');
     return;
   }
 
-  // ---- إرسال الفاصل ----
+  if (
+    userId === '1406421385428992135' &&
+    content === 'بوت قول لي قصيده'
+  ) {
+    await message.reply(
+      'يانجد الاحباب لك حدر القمر صوره\nطفله هلال و بنت خمسه عشر بدرا'
+    );
+    return;
+  }
+
+  /* -------- إرسال الفاصل (صورة) -------- */
+
   if (message.channel.id === separatorChannelID) {
     try {
       const attachment = new AttachmentBuilder(separatorImageFile);
@@ -73,59 +98,69 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  // ---- الردود التلقائية للأشخاص ----
-  if (usersReplies[userId] && msg.includes('بوت')) {
+  /* -------- الرد على "بوت" فقط -------- */
+
+  const isBotOnly = content === 'بوت';
+
+  if (isBotOnly && usersReplies[userId]) {
     const lastReply = lastReplyMap.get(userId);
 
     if (!lastReply || now - lastReply >= REPLY_COOLDOWN) {
-      await message.channel.send(usersReplies[userId]);
+      await message.reply(usersReplies[userId]);
       lastReplyMap.set(userId, now);
     } else {
-      await message.channel.send('لا تفلها عاد');
+      await message.reply('لا تفلها عاد');
     }
   }
 
-  // ---- الرد على "بوت قول لي قصيده" لمستخدم محدد ----
-  if (userId === '1406421385428992135' && msg.includes('بوت قول لي قصيده')) {
-    await message.channel.send(
-      'يانجد الاحباب لك حدر القمر صوره\nطفله هلال و بنت خمسه عشر بدرا'
-    );
-  }
+  /* -------- تايم أوت -------- */
 
-  // ---- تايم أوت ----
-  if (msg === 'اوت' && message.reference && ownerIds.includes(userId)) {
+  if (
+    content === 'اوت' &&
+    message.reference &&
+    ownerIds.includes(userId)
+  ) {
     try {
       const repliedMessage = await message.channel.messages.fetch(
         message.reference.messageId
       );
-      const member = await message.guild.members.fetch(repliedMessage.author.id);
+
+      const member = await message.guild.members.fetch(
+        repliedMessage.author.id
+      );
 
       await member.timeout(TIMEOUT_DURATION, 'تايم أوت من Owner');
-      await message.channel.send('القم تايم اوت');
+      await message.reply('القم تايم اوت');
     } catch (err) {
       console.error(err);
-      await message.channel.send('❌ ما قدرت أعطيه تايم أوت');
+      await message.reply('❌ ما قدرت أعطيه تايم أوت');
     }
   }
 
-  // ---- إعادة تشغيل ----
-  if (msg === restartCommand && ownerIds.includes(userId)) {
-    await message.channel.send('🔄 جاري إعادة تشغيل البوت...');
+  /* -------- إعادة تشغيل -------- */
+
+  if (content === restartCommand && ownerIds.includes(userId)) {
+    await message.reply('🔄 جاري إعادة تشغيل البوت...');
     process.exit(0);
   }
 
-  // ---- الترحيب بعد الغياب ----
+  /* -------- الترحيب بعد الغياب -------- */
+
   const lastTime = lastMessageMap.get(userId);
+
   if (lastTime && now - lastTime >= ABSENCE_TIME) {
     if (userId === welcomeOwnerId) {
-      await message.channel.send('أرحب يا أطلق أونر 🫡');
+      await message.reply('أرحب يا أطلق أونر 🫡');
     } else {
-      await message.channel.send('أرحب يا مطنوخ، وين كنت لك فقده');
+      await message.reply('أرحب يا مطنوخ، وين كنت لك فقده');
     }
   }
 
   lastMessageMap.set(userId, now);
 });
 
-// ===== تسجيل الدخول =====
+/* ======================
+   تسجيل الدخول
+   ====================== */
+
 client.login(process.env.TOKEN);
