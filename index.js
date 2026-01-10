@@ -94,22 +94,22 @@ client.on('messageCreate', async (message) => {
     const amount = parseInt(args[1]);
 
     if (!amount || isNaN(amount)) {
-      await message.reply('❌ استخدم الأمر كذا: امسح 10');
+      await message.reply(' استخدم الأمر كذا: امسح 10');
       return;
     }
 
-    if (amount < 1 || amount > 100) {
-      await message.reply('❌ العدد لازم يكون بين 1 و 100');
+    if (amount < 1 || amount > 1000) {
+      await message.reply(' العدد لازم يكون بين 1 و 100');
       return;
     }
 
     try {
       await message.channel.bulkDelete(amount, true);
-      const confirm = await message.channel.send(`🧹 تم مسح ${amount} رسالة`);
+      const confirm = await message.channel.send(` تم مسح ${amount} رسالة`);
       setTimeout(() => confirm.delete().catch(() => {}), 3000);
     } catch (err) {
       console.error(err);
-      await message.reply('❌ البوت ما عنده صلاحية مسح الرسائل');
+      await message.reply(' البوت ما عنده صلاحية مسح الرسائل');
     }
 
     return;
