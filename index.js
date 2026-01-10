@@ -14,7 +14,7 @@ const client = new Client({
    ====================== */
 const separatorChannelID = '1451696498214703246';
 const separatorImageFile = './boty.PNG'; // صورة الفاصل
-const commandImageFile = './boty2.PNG'; // صورة الأمر الخاص
+const commandImageFile = './boty2.JPG'; // صورة الأمر الخاص
 
 const usersReplies = {
   '1406416452310925496': 'لبيه يادحومي',
