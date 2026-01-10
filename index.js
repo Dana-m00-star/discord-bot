@@ -65,7 +65,59 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   const now = Date.now();
 
-  /* -------- أوامر خاصة -------- */
+  /* ======================
+     رد السلام
+     ====================== */
+
+  if (content === 'السلام عليكم') {
+    await message.reply('وعليكم السلام');
+    return;
+  }
+
+  /* ======================
+     كفارة المجلس
+     ====================== */
+
+  if (content === 'كفاره المجلس') {
+    await message.reply(
+      'سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك'
+    );
+    return;
+  }
+
+  /* ======================
+     أمر مسح الرسائل (للجميع)
+     ====================== */
+
+  if (content.startsWith('امسح')) {
+    const args = content.split(' ');
+    const amount = parseInt(args[1]);
+
+    if (!amount || isNaN(amount)) {
+      await message.reply('❌ استخدم الأمر كذا: امسح 10');
+      return;
+    }
+
+    if (amount < 1 || amount > 100) {
+      await message.reply('❌ العدد لازم يكون بين 1 و 100');
+      return;
+    }
+
+    try {
+      await message.channel.bulkDelete(amount, true);
+      const confirm = await message.channel.send(`🧹 تم مسح ${amount} رسالة`);
+      setTimeout(() => confirm.delete().catch(() => {}), 3000);
+    } catch (err) {
+      console.error(err);
+      await message.reply('❌ البوت ما عنده صلاحية مسح الرسائل');
+    }
+
+    return;
+  }
+
+  /* ======================
+     أوامر بوت الخاصة
+     ====================== */
 
   if (content === 'بوت تحبني') {
     await message.reply('اموت فيك');
@@ -87,7 +139,9 @@ client.on('messageCreate', async (message) => {
     return;
   }
 
-  /* -------- إرسال الفاصل (صورة) -------- */
+  /* ======================
+     إرسال الفاصل (صورة)
+     ====================== */
 
   if (message.channel.id === separatorChannelID) {
     try {
@@ -98,11 +152,11 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  /* -------- الرد على "بوت" فقط -------- */
+  /* ======================
+     الرد على "بوت" فقط
+     ====================== */
 
-  const isBotOnly = content === 'بوت';
-
-  if (isBotOnly && usersReplies[userId]) {
+  if (content === 'بوت' && usersReplies[userId]) {
     const lastReply = lastReplyMap.get(userId);
 
     if (!lastReply || now - lastReply >= REPLY_COOLDOWN) {
@@ -113,7 +167,9 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  /* -------- تايم أوت -------- */
+  /* ======================
+     تايم أوت
+     ====================== */
 
   if (
     content === 'اوت' &&
@@ -137,14 +193,18 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  /* -------- إعادة تشغيل -------- */
+  /* ======================
+     إعادة تشغيل
+     ====================== */
 
   if (content === restartCommand && ownerIds.includes(userId)) {
     await message.reply('🔄 جاري إعادة تشغيل البوت...');
     process.exit(0);
   }
 
-  /* -------- الترحيب بعد الغياب -------- */
+  /* ======================
+     الترحيب بعد الغياب
+     ====================== */
 
   const lastTime = lastMessageMap.get(userId);
 
