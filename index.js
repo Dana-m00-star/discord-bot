@@ -12,9 +12,9 @@ const client = new Client({
 /* ======================
    الإعدادات
    ====================== */
-
 const separatorChannelID = '1451696498214703246';
-const separatorImageFile = './boty.PNG';
+const separatorImageFile = './boty.PNG'; // صورة الفاصل
+const commandImageFile = './boty2.PNG'; // صورة الأمر الخاص
 
 const usersReplies = {
   '1406416452310925496': 'لبيه يادحومي',
@@ -34,14 +34,12 @@ const restartCommand = 'ريستارت';
 /* ======================
    كول داون الردود
    ====================== */
-
 const lastReplyMap = new Map();
 const REPLY_COOLDOWN = 60 * 1000;
 
 /* ======================
    الترحيب بعد الغياب
    ====================== */
-
 const lastMessageMap = new Map();
 const welcomeOwnerId = '1406429112502976556';
 const ABSENCE_TIME = 60 * 60 * 1000;
@@ -49,7 +47,6 @@ const ABSENCE_TIME = 60 * 60 * 1000;
 /* ======================
    جاهزية البوت
    ====================== */
-
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 });
@@ -57,7 +54,6 @@ client.once('ready', () => {
 /* ======================
    التعامل مع الرسائل
    ====================== */
-
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
@@ -68,7 +64,6 @@ client.on('messageCreate', async (message) => {
   /* ======================
      رد السلام
      ====================== */
-
   if (content === 'السلام عليكم') {
     await message.reply('وعليكم السلام');
     return;
@@ -77,7 +72,6 @@ client.on('messageCreate', async (message) => {
   /* ======================
      كفارة المجلس
      ====================== */
-
   if (content === 'كفاره المجلس') {
     await message.reply(
       'سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك'
@@ -88,37 +82,34 @@ client.on('messageCreate', async (message) => {
   /* ======================
      أمر مسح الرسائل (للجميع)
      ====================== */
-
   if (content.startsWith('امسح')) {
     const args = content.split(' ');
     const amount = parseInt(args[1]);
 
     if (!amount || isNaN(amount)) {
-      await message.reply(' استخدم الأمر كذا: امسح 10');
+      await message.reply('❌ استخدم الأمر كذا: امسح 10');
       return;
     }
 
-    if (amount < 1 || amount > 1000) {
-      await message.reply(' العدد لازم يكون بين 1 و 100');
+    if (amount < 1 || amount > 100) {
+      await message.reply('❌ العدد لازم يكون بين 1 و 100');
       return;
     }
 
     try {
-      await message.channel.bulkDelete(amount, true);
-      const confirm = await message.channel.send(` تم مسح ${amount} رسالة`);
+      await message.channel.bulkDelete(amount, true); // يشمل كل الرسائل
+      const confirm = await message.channel.send(`🧹 تم مسح ${amount} رسالة`);
       setTimeout(() => confirm.delete().catch(() => {}), 3000);
     } catch (err) {
       console.error(err);
-      await message.reply(' البوت ما عنده صلاحية مسح الرسائل');
+      await message.reply('❌ البوت ما عنده صلاحية مسح الرسائل');
     }
-
     return;
   }
 
   /* ======================
      أوامر بوت الخاصة
      ====================== */
-
   if (content === 'بوت تحبني') {
     await message.reply('اموت فيك');
     return;
@@ -140,12 +131,28 @@ client.on('messageCreate', async (message) => {
   }
 
   /* ======================
-     إرسال الفاصل (صورة)
+     إرسال صورة الأمر الخاص
      ====================== */
+  if (
+    message.reference &&
+    content === 'بوت عطه وحده ما تبي كنتاكي بعد'
+  ) {
+    try {
+      const attachment = new AttachmentBuilder(commandImageFile); // صورة مختلفة عن الفاصل
+      await message.reply({ files: [attachment] });
+    } catch (err) {
+      console.error('خطأ في إرسال الصورة:', err);
+      await message.reply('❌ ما قدرت أرسل الصورة');
+    }
+    return;
+  }
 
+  /* ======================
+     إرسال الفاصل تلقائيًا في القناة المحددة
+     ====================== */
   if (message.channel.id === separatorChannelID) {
     try {
-      const attachment = new AttachmentBuilder(separatorImageFile);
+      const attachment = new AttachmentBuilder(separatorImageFile); // الفاصل
       await message.channel.send({ files: [attachment] });
     } catch (err) {
       console.error('خطأ في إرسال الفاصل:', err);
@@ -155,7 +162,6 @@ client.on('messageCreate', async (message) => {
   /* ======================
      الرد على "بوت" فقط
      ====================== */
-
   if (content === 'بوت' && usersReplies[userId]) {
     const lastReply = lastReplyMap.get(userId);
 
@@ -170,7 +176,6 @@ client.on('messageCreate', async (message) => {
   /* ======================
      تايم أوت
      ====================== */
-
   if (
     content === 'اوت' &&
     message.reference &&
@@ -196,7 +201,6 @@ client.on('messageCreate', async (message) => {
   /* ======================
      إعادة تشغيل
      ====================== */
-
   if (content === restartCommand && ownerIds.includes(userId)) {
     await message.reply('🔄 جاري إعادة تشغيل البوت...');
     process.exit(0);
@@ -205,7 +209,6 @@ client.on('messageCreate', async (message) => {
   /* ======================
      الترحيب بعد الغياب
      ====================== */
-
   const lastTime = lastMessageMap.get(userId);
 
   if (lastTime && now - lastTime >= ABSENCE_TIME) {
@@ -222,5 +225,4 @@ client.on('messageCreate', async (message) => {
 /* ======================
    تسجيل الدخول
    ====================== */
-
 client.login(process.env.TOKEN);
