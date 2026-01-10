@@ -11,10 +11,10 @@ const client = new Client({
 
 /* ======================
    الإعدادات
-   ====================== */
+====================== */
 const separatorChannelID = '1451696498214703246';
 const separatorImageFile = './boty.PNG'; // صورة الفاصل
-const commandImageFile = './boty2.JPG'; // صورة الأمر الخاص
+const commandImageFile = './boty2.JPG'; // صورة أمر "بوت عطه وحده ما تبي كنتاكي بعد"
 
 const usersReplies = {
   '1406416452310925496': 'لبيه يادحومي',
@@ -28,32 +28,32 @@ const usersReplies = {
 
 const ownerIds = ['1278197844259639322', '1406429112502976556'];
 
-const TIMEOUT_DURATION = 60 * 1000;
+const TIMEOUT_DURATION = 60 * 1000; // دقيقة
 const restartCommand = 'ريستارت';
 
 /* ======================
    كول داون الردود
-   ====================== */
+====================== */
 const lastReplyMap = new Map();
 const REPLY_COOLDOWN = 60 * 1000;
 
 /* ======================
    الترحيب بعد الغياب
-   ====================== */
+====================== */
 const lastMessageMap = new Map();
 const welcomeOwnerId = '1406429112502976556';
 const ABSENCE_TIME = 60 * 60 * 1000;
 
 /* ======================
    جاهزية البوت
-   ====================== */
+====================== */
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 });
 
 /* ======================
    التعامل مع الرسائل
-   ====================== */
+====================== */
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
@@ -62,8 +62,8 @@ client.on('messageCreate', async (message) => {
   const now = Date.now();
 
   /* ======================
-     رد السلام
-     ====================== */
+     الرد على السلام
+====================== */
   if (content === 'السلام عليكم') {
     await message.reply('وعليكم السلام');
     return;
@@ -71,7 +71,7 @@ client.on('messageCreate', async (message) => {
 
   /* ======================
      كفارة المجلس
-     ====================== */
+====================== */
   if (content === 'كفاره المجلس') {
     await message.reply(
       'سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك'
@@ -81,35 +81,35 @@ client.on('messageCreate', async (message) => {
 
   /* ======================
      أمر مسح الرسائل (للجميع)
-     ====================== */
+====================== */
   if (content.startsWith('امسح')) {
     const args = content.split(' ');
     const amount = parseInt(args[1]);
 
     if (!amount || isNaN(amount)) {
-      await message.reply('❌ استخدم الأمر كذا: امسح 10');
+      await message.reply('استخدم الأمر كذا: امسح 10');
       return;
     }
 
-    if (amount < 1 || amount > 100) {
-      await message.reply('❌ العدد لازم يكون بين 1 و 100');
+    if (amount < 1 || amount > 1000) {
+      await message.reply(' العدد لازم يكون بين 1 و 100');
       return;
     }
 
     try {
       await message.channel.bulkDelete(amount, true); // يشمل كل الرسائل
-      const confirm = await message.channel.send(`🧹 تم مسح ${amount} رسالة`);
+      const confirm = await message.channel.send(` تم مسح ${amount} رسالة`);
       setTimeout(() => confirm.delete().catch(() => {}), 3000);
     } catch (err) {
       console.error(err);
-      await message.reply('❌ البوت ما عنده صلاحية مسح الرسائل');
+      await message.reply(' البوت ما عنده صلاحية مسح الرسائل');
     }
     return;
   }
 
   /* ======================
      أوامر بوت الخاصة
-     ====================== */
+====================== */
   if (content === 'بوت تحبني') {
     await message.reply('اموت فيك');
     return;
@@ -120,10 +120,7 @@ client.on('messageCreate', async (message) => {
     return;
   }
 
-  if (
-    userId === '1406421385428992135' &&
-    content === 'بوت قول لي قصيده'
-  ) {
+  if (userId === '1406421385428992135' && content === 'بوت قول لي قصيده') {
     await message.reply(
       'يانجد الاحباب لك حدر القمر صوره\nطفله هلال و بنت خمسه عشر بدرا'
     );
@@ -131,28 +128,30 @@ client.on('messageCreate', async (message) => {
   }
 
   /* ======================
-     إرسال صورة الأمر الخاص
-     ====================== */
-  if (
-    message.reference &&
-    content === 'بوت عطه وحده ما تبي كنتاكي بعد'
-  ) {
+     أمر "بوت عطه وحده ما تبي كنتاكي بعد"
+     - يرسل صورة كـ Reply على رسالة الشخص الأصلي
+====================== */
+  if (message.reference && content === 'بوت عطه وحده ما تبي كنتاكي بعد') {
     try {
-      const attachment = new AttachmentBuilder(commandImageFile); // صورة مختلفة عن الفاصل
-      await message.reply({ files: [attachment] });
+      const repliedMessage = await message.channel.messages.fetch(
+        message.reference.messageId
+      );
+
+      const attachment = new AttachmentBuilder(commandImageFile);
+      await repliedMessage.reply({ files: [attachment] });
     } catch (err) {
       console.error('خطأ في إرسال الصورة:', err);
-      await message.reply('❌ ما قدرت أرسل الصورة');
+      await message.reply('ما قدرت أرسل الصورة');
     }
     return;
   }
 
   /* ======================
      إرسال الفاصل تلقائيًا في القناة المحددة
-     ====================== */
+====================== */
   if (message.channel.id === separatorChannelID) {
     try {
-      const attachment = new AttachmentBuilder(separatorImageFile); // الفاصل
+      const attachment = new AttachmentBuilder(separatorImageFile);
       await message.channel.send({ files: [attachment] });
     } catch (err) {
       console.error('خطأ في إرسال الفاصل:', err);
@@ -160,8 +159,8 @@ client.on('messageCreate', async (message) => {
   }
 
   /* ======================
-     الرد على "بوت" فقط
-     ====================== */
+     الرد على "بوت" فقط (الكلمة لوحدها)
+====================== */
   if (content === 'بوت' && usersReplies[userId]) {
     const lastReply = lastReplyMap.get(userId);
 
@@ -175,20 +174,13 @@ client.on('messageCreate', async (message) => {
 
   /* ======================
      تايم أوت
-     ====================== */
-  if (
-    content === 'اوت' &&
-    message.reference &&
-    ownerIds.includes(userId)
-  ) {
+====================== */
+  if (content === 'اوت' && message.reference && ownerIds.includes(userId)) {
     try {
       const repliedMessage = await message.channel.messages.fetch(
         message.reference.messageId
       );
-
-      const member = await message.guild.members.fetch(
-        repliedMessage.author.id
-      );
+      const member = await message.guild.members.fetch(repliedMessage.author.id);
 
       await member.timeout(TIMEOUT_DURATION, 'تايم أوت من Owner');
       await message.reply('القم تايم اوت');
@@ -200,7 +192,7 @@ client.on('messageCreate', async (message) => {
 
   /* ======================
      إعادة تشغيل
-     ====================== */
+====================== */
   if (content === restartCommand && ownerIds.includes(userId)) {
     await message.reply('🔄 جاري إعادة تشغيل البوت...');
     process.exit(0);
@@ -208,9 +200,8 @@ client.on('messageCreate', async (message) => {
 
   /* ======================
      الترحيب بعد الغياب
-     ====================== */
+====================== */
   const lastTime = lastMessageMap.get(userId);
-
   if (lastTime && now - lastTime >= ABSENCE_TIME) {
     if (userId === welcomeOwnerId) {
       await message.reply('أرحب يا أطلق أونر 🫡');
@@ -224,5 +215,5 @@ client.on('messageCreate', async (message) => {
 
 /* ======================
    تسجيل الدخول
-   ====================== */
+====================== */
 client.login(process.env.TOKEN);
