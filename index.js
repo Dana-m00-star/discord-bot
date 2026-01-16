@@ -134,19 +134,19 @@ client.on('messageCreate', async (message) => {
   // مثال: أمر السؤال
   if (content === 'سؤال' && ownerIds.includes(userId)) {
     if (questionActive) {
-      await message.reply('❌ فيه سؤال شغال الحين');
+      await message.reply(' فيه سؤال شغال الحين');
       return;
     }
     const q = getRandomQuestion();
     questionActive = true;
     currentAnswer = q.a;
-    await message.channel.send(`🧠 **سؤال الفعالية:**\n${q.q}`);
+    await message.channel.send(` **سؤال الفعالية:**\n${q.q}`);
     return;
   }
 
   if (questionActive && content === currentAnswer) {
     questionActive = false;
-    await message.reply('🎉 إجابة صحيحة! فزت');
+    await message.reply(' إجابة صحيحة! فزت');
   }
 
   // باقي كودك الأصلي (ردود السلام، الترحيب، الصور، تايم أوت، إلخ...)
