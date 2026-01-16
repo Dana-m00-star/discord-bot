@@ -148,8 +148,30 @@ client.on('messageCreate', async (message) => {
     questionActive = false;
     await message.reply(' إجابة صحيحة! فزت');
   }
+// أمر مسح الرسائل
+if (content.startsWith('امسح')) {
+  const args = content.split(' ');
+  const amount = parseInt(args[1]);
 
-  // باقي كودك الأصلي (ردود السلام، الترحيب، الصور، تايم أوت، إلخ...)
+  if (!amount || isNaN(amount)) {
+    await message.reply('استخدم الأمر كذا: امسح 10');
+    return;
+  }
+
+  if (amount < 1 || amount > 1000) {
+    await message.reply('العدد لازم يكون بين 1 و 1000');
+    return;
+  }
+
+  try {
+    await message.channel.bulkDelete(amount, true); // يشمل كل الرسائل
+    const confirm = await message.channel.send(`✅ تم مسح ${amount} رسالة`);
+    setTimeout(() => confirm.delete().catch(() => {}), 3000);
+  } catch (err) {
+    console.error(err);
+    await message.reply('❌ البوت ما عنده صلاحية مسح الرسائل');
+  }
+}  // باقي كودك الأصلي (ردود السلام، الترحيب، الصور، تايم أوت، إلخ...)
 });
 
 /* ======================
