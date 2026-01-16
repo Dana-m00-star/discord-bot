@@ -105,13 +105,6 @@ const baseQuestions = [
 
 questions.push(...baseQuestions);
 
-// توليد 240 سؤال عام إضافي (ألغاز ومنطق وثقافة)
-for (let i = 1; i <= 240; i++) {
-  questions.push({
-    q: `سؤال عام ${i}: ما الشيء الذي إذا أخذت منه كبر؟`,
-    a: 'الحفرة'
-  });
-}
 
 // حالة الفعالية
 let questionActive = false;
