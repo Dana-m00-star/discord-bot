@@ -26,7 +26,7 @@ const usersReplies = {
   '1375217824187814161': 'ارحب يالريس 🫡'
 };
 
-const ownerIds = ['1278197844259639322', '1406429112502976556'];
+const ownerIds = ['1278197844259639322', '1406429112502976556''1406416452310925496';
 
 const TIMEOUT_DURATION = 60 * 1000;
 const restartCommand = 'ريستارت';
@@ -165,13 +165,35 @@ if (content.startsWith('امسح')) {
 
   try {
     await message.channel.bulkDelete(amount, true); // يشمل كل الرسائل
-    const confirm = await message.channel.send(`✅ تم مسح ${amount} رسالة`);
+    const confirm = await message.channel.send(` تم مسح ${amount} رسالة`);
     setTimeout(() => confirm.delete().catch(() => {}), 3000);
   } catch (err) {
     console.error(err);
-    await message.reply('❌ البوت ما عنده صلاحية مسح الرسائل');
+    await message.reply(' البوت ما عنده صلاحية مسح الرسائل');
   }
-}  // باقي كودك الأصلي (ردود السلام، الترحيب، الصور، تايم أوت، إلخ...)
+}/* ======================
+   تايم أوت
+====================== */
+if (content === 'اوت' && message.reference && ownerIds.includes(userId)) {
+  try {
+    const repliedMessage = await message.channel.messages.fetch(
+      message.reference.messageId
+    );
+
+    const member = await message.guild.members.fetch(repliedMessage.author.id);
+
+    if (!member.moderatable) {
+      await message.reply(' ما أقدر أعطيه تايم أوت (صلاحيات)');
+      return;
+    }
+
+    await member.timeout(TIMEOUT_DURATION, 'تايم أوت من الأونر');
+    await message.reply(' القم تايم اوت');
+  } catch (err) {
+    console.error(err);
+    await message.reply(' ما قدرت أعطيه تايم أوت');
+  }
+}// باقي كودك الأصلي (ردود السلام، الترحيب، الصور، تايم أوت، إلخ...)
 });
 
 /* ======================
