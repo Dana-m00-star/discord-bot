@@ -33,7 +33,6 @@ const ownerIds = [
 ];
 
 const TIMEOUT_DURATION = 60 * 1000;
-const restartCommand = 'ريستارت';
 
 /* ======================
    كول داون الردود
@@ -47,33 +46,6 @@ const REPLY_COOLDOWN = 60 * 1000;
 const lastMessageMap = new Map();
 const welcomeOwnerId = '1406429112502976556';
 const ABSENCE_TIME = 60 * 60 * 1000;
-
-/* ======================
-   بنك أسئلة عامة
-====================== */
-const questions = [
-  { q: 'ما أطول نهر في العالم؟', a: 'النيل' },
-  { q: 'ما أكبر قارة في العالم؟', a: 'آسيا' },
-  { q: 'ما أصغر دولة في العالم؟', a: 'الفاتيكان' },
-  { q: 'ما الكوكب الأقرب للشمس؟', a: 'عطارد' },
-  { q: 'كم عدد القارات؟', a: '7' },
-  { q: 'ما أعلى جبل في العالم؟', a: 'إيفرست' },
-  { q: 'ما الدولة التي ليس لها جيش؟', a: 'كوستاريكا' },
-  { q: 'ما الدولة التي يطلق عليها بلد المليون بحيرة؟', a: 'فنلندا' },
-  { q: 'ما الحيوان الملقب بسفينة الصحراء؟', a: 'الجمل' },
-  { q: 'ما عاصمة اليابان؟', a: 'طوكيو' },
-  { q: 'ما عاصمة فرنسا؟', a: 'باريس' },
-  { q: 'ما أكبر محيط في العالم؟', a: 'المحيط الهادئ' },
-  { q: 'ما أسرع حيوان بري؟', a: 'الفهد' },
-  { q: 'ما أكبر صحراء في العالم؟', a: 'الصحراء الكبرى' }
-];
-
-let questionActive = false;
-let currentAnswer = '';
-
-function getRandomQuestion() {
-  return questions[Math.floor(Math.random() * questions.length)];
-}
 
 /* ======================
    جاهزية البوت
@@ -92,26 +64,9 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   const now = Date.now();
 
-  /* ===== تشغيل سؤال ===== */
-  if (content === 'سؤال' && ownerIds.includes(userId)) {
-    if (questionActive) {
-      await message.reply('فيه سؤال شغال الحين');
-      return;
-    }
+  // ✅ طباعة كل رسالة في الكونسول
+  console.log(`[${message.guild?.name}] #${message.channel.name} | ${message.author.tag}: ${message.content}`);
 
-    const q = getRandomQuestion();
-    questionActive = true;
-    currentAnswer = q.a;
-
-    await message.channel.send(` **سؤال الفعالية:**\n${q.q}`);
-    return;
-  }
-
-  if (questionActive && content === currentAnswer) {
-    questionActive = false;
-    await message.reply('اجابه صحيحه ياوحش');
-    return;
-  }
 /* ======================
    أوامر بوت الخاصة
 ====================== */
@@ -125,7 +80,6 @@ if (content === 'بوت احضني') {
   return;
 }
 
-// رجعنا أمر "بوت قول لي قصيده"
 if (userId === '1406421385428992135' && content === 'بوت قول لي قصيده') {
   await message.reply(
     'يانجد الاحباب لك حدر القمر صوره\nطفله هلال و بنت خمسه عشر بدرا'
@@ -134,7 +88,7 @@ if (userId === '1406421385428992135' && content === 'بوت قول لي قصيد
 }
 
 /* ======================
-   أمر "بوت عطه وحده ما تبي كنتاكي بعد"
+   أمر الصورة بالرد
 ====================== */
 if (message.reference && content === 'بوت عطه وحده ما تبي كنتاكي بعد') {
   try {
@@ -149,66 +103,68 @@ if (message.reference && content === 'بوت عطه وحده ما تبي كنت�
     await message.reply('ما قدرت أرسل الصورة');
   }
   return;
-}  /* ===== السلام ===== */
-  if (content === 'السلام عليكم') {
-    await message.reply('وعليكم السلام');
+}
+
+/* ===== السلام ===== */
+if (content === 'السلام عليكم') {
+  await message.reply('وعليكم السلام');
+  return;
+}
+
+/* ===== كفارة المجلس ===== */
+if (content === 'كفاره المجلس') {
+  await message.reply(
+    'سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك'
+  );
+  return;
+}
+
+/* ===== مسح الرسائل ===== */
+if (content.startsWith('امسح')) {
+  const args = content.split(' ');
+  const amount = parseInt(args[1]);
+
+  if (!amount || isNaN(amount)) {
+    await message.reply('استخدم الأمر كذا: امسح 10');
     return;
   }
 
-  /* ===== كفارة المجلس ===== */
-  if (content === 'كفاره المجلس') {
-    await message.reply(
-      'سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك'
+  if (amount < 1 || amount > 1000) {
+    await message.reply('العدد لازم يكون بين 1 و 1000');
+    return;
+  }
+
+  try {
+    await message.channel.bulkDelete(amount, true);
+    const confirm = await message.channel.send(`تم مسح ${amount} رسالة`);
+    setTimeout(() => confirm.delete().catch(() => {}), 3000);
+  } catch (err) {
+    await message.reply('البوت ما عنده صلاحية مسح الرسائل');
+  }
+  return;
+}
+
+/* ===== الفاصل ===== */
+if (message.channel.id === separatorChannelID) {
+  const attachment = new AttachmentBuilder(separatorImageFile);
+  await message.channel.send({ files: [attachment] });
+}
+
+/* ===== تايم أوت ===== */
+if (content === 'اوت' && message.reference && ownerIds.includes(userId)) {
+  try {
+    const repliedMessage = await message.channel.messages.fetch(
+      message.reference.messageId
     );
-    return;
+    const member = await message.guild.members.fetch(repliedMessage.author.id);
+    await member.timeout(TIMEOUT_DURATION, 'تايم أوت');
+    await message.reply(' القم تايم اوت');
+  } catch {
+    await message.reply(' ما قدرت أعطيه تايم أوت');
   }
+}
 
-  /* ===== مسح الرسائل ===== */
-  if (content.startsWith('امسح')) {
-    const args = content.split(' ');
-    const amount = parseInt(args[1]);
-
-    if (!amount || isNaN(amount)) {
-      await message.reply('استخدم الأمر كذا: امسح 10');
-      return;
-    }
-
-    if (amount < 1 || amount > 1000) {
-      await message.reply('العدد لازم يكون بين 1 و 1000');
-      return;
-    }
-
-    try {
-      await message.channel.bulkDelete(amount, true);
-      const confirm = await message.channel.send(`تم مسح ${amount} رسالة`);
-      setTimeout(() => confirm.delete().catch(() => {}), 3000);
-    } catch (err) {
-      await message.reply('البوت ما عنده صلاحية مسح الرسائل');
-    }
-    return;
-  }
-
-  /* ===== الفاصل ===== */
-  if (message.channel.id === separatorChannelID) {
-    const attachment = new AttachmentBuilder(separatorImageFile);
-    await message.channel.send({ files: [attachment] });
-  }
-
-  /* ===== تايم أوت ===== */
-  if (content === 'اوت' && message.reference && ownerIds.includes(userId)) {
-    try {
-      const repliedMessage = await message.channel.messages.fetch(
-        message.reference.messageId
-      );
-      const member = await message.guild.members.fetch(repliedMessage.author.id);
-      await member.timeout(TIMEOUT_DURATION, 'تايم أوت');
-      await message.reply(' القم تايم اوت');
-    } catch {
-      await message.reply(' ما قدرت أعطيه تايم أوت');
-    }
-  }
-
-  lastMessageMap.set(userId, now);
+lastMessageMap.set(userId, now);
 });
 
 /* ======================
