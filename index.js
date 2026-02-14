@@ -29,7 +29,6 @@ const usersReplies = {
 const ownerIds = [
   '1278197844259639322',
   '1406429112502976556',
-  '1406416452310925496'
 ];
 
 const TIMEOUT_DURATION = 60 * 1000;
