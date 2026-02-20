@@ -59,6 +59,11 @@ client.once('clientReady', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
+  // حذف الرسائل اللي فيها 50 هاء أو أكثر متصلة (ه أو هـ)
+  if (/(?:ه|هـ){100,}/.test(message.content)) {
+      await message.delete().catch(() => {});
+  }
+
   const content = message.content.trim();
   const userId = message.author.id;
   const now = Date.now();
